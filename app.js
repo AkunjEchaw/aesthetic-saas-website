@@ -1,6 +1,6 @@
 /**
- * AURA SAAS - Interactive Core Logic
- * Handles micro-interactions, ROI calculator, tabs, pricing switch, modals, and toasts.
+ * LUMEN 3D - Interactive Engine & Three.js Spatial Renderer
+ * High-End White Aesthetic, Real-Time 3D Geometry, Mouse Tracking & Spatial Interactions
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,279 +9,393 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
   }
 
-  // 1. Theme Management (Dark / Light)
-  const themeToggleBtn = document.getElementById('theme-toggle');
-  const themeIcon = document.getElementById('theme-icon');
-  
-  // Default to dark mode if not specified
-  const savedTheme = localStorage.getItem('aura-theme') || 'dark';
-  if (savedTheme === 'light') {
-    document.documentElement.classList.add('light');
-    if (themeIcon) themeIcon.setAttribute('data-lucide', 'moon');
-  } else {
-    document.documentElement.classList.remove('light');
-    if (themeIcon) themeIcon.setAttribute('data-lucide', 'sun');
-  }
-  if (window.lucide) lucide.createIcons();
+  // =========================================================================
+  // 1. THREE.JS INTERACTIVE 3D HERO CANVAS
+  // =========================================================================
+  const canvasContainer = document.getElementById('hero-3d-stage');
+  const canvas = document.getElementById('webgl-hero-canvas');
 
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      const isLight = document.documentElement.classList.toggle('light');
-      const newTheme = isLight ? 'light' : 'dark';
-      localStorage.setItem('aura-theme', newTheme);
-      
-      if (themeIcon) {
-        themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
-        if (window.lucide) lucide.createIcons();
-      }
-      showToast('Theme Changed', `Switched to ${isLight ? 'Light' : 'Dark'} aesthetic mode.`);
-    });
+  if (canvas && window.THREE) {
+    initThreeDScene(canvas, canvasContainer);
   }
 
-  // 2. Mobile Menu Toggle
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
+  function initThreeDScene(canvasElement, container) {
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || 650;
 
-  if (mobileMenuBtn && mobileMenu) {
-    mobileMenuBtn.addEventListener('click', () => {
-      const isExpanded = mobileMenu.classList.toggle('hidden');
-      const icon = mobileMenuBtn.querySelector('[data-lucide]');
-      if (icon) {
-        icon.setAttribute('data-lucide', isExpanded ? 'menu' : 'x');
-        if (window.lucide) lucide.createIcons();
+    // Scene & Camera
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.z = 6.2;
+
+    // Renderer with Anti-Aliasing and Alpha Transparency
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvasElement,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+
+    // 3D Objects Group
+    const mainGroup = new THREE.Group();
+    scene.add(mainGroup);
+
+    // 1. Primary Central 3D Sculpture: Geodesic Torus Knot
+    const knotGeometry = new THREE.TorusKnotGeometry(1.4, 0.42, 160, 32);
+    
+    // Materials Presets (Liquid Titanium default)
+    const materials = {
+      titanium: new THREE.MeshPhysicalMaterial({
+        color: 0xf4f4f6,
+        metalness: 0.9,
+        roughness: 0.18,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.1,
+        reflectivity: 0.9,
+      }),
+      crystal: new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 0.1,
+        roughness: 0.1,
+        transmission: 0.7,
+        ior: 1.5,
+        reflectivity: 0.95,
+        clearcoat: 1.0,
+      }),
+      wireframe: new THREE.MeshStandardMaterial({
+        color: 0x09090b,
+        wireframe: true,
+        roughness: 0.5,
+      })
+    };
+
+    let currentMaterial = materials.titanium;
+    const knotMesh = new THREE.Mesh(knotGeometry, currentMaterial);
+    mainGroup.add(knotMesh);
+
+    // 2. Orbital Outer Ring
+    const ringGeometry = new THREE.TorusGeometry(2.35, 0.035, 16, 100);
+    const ringMaterial = new THREE.MeshStandardMaterial({
+      color: 0x27272a,
+      metalness: 0.8,
+      roughness: 0.2
+    });
+    const orbitalRing = new THREE.Mesh(ringGeometry, ringMaterial);
+    orbitalRing.rotation.x = Math.PI / 3;
+    mainGroup.add(orbitalRing);
+
+    // 3. Orbital Secondary Slanted Ring
+    const ring2Geometry = new THREE.TorusGeometry(2.6, 0.02, 16, 100);
+    const ring2Material = new THREE.MeshStandardMaterial({
+      color: 0x71717a,
+      metalness: 0.9,
+      roughness: 0.15
+    });
+    const orbitalRing2 = new THREE.Mesh(ring2Geometry, ring2Material);
+    orbitalRing2.rotation.y = Math.PI / 4;
+    orbitalRing2.rotation.x = Math.PI / 6;
+    mainGroup.add(orbitalRing2);
+
+    // 4. Floating Micro-Particle Swarm
+    const particleCount = 120;
+    const particleGeometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 10;
+      positions[i + 1] = (Math.random() - 0.5) * 8;
+      positions[i + 2] = (Math.random() - 0.5) * 6;
+    }
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const particleMaterial = new THREE.PointsMaterial({
+      color: 0x71717a,
+      size: 0.04,
+      transparent: true,
+      opacity: 0.6
+    });
+    const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(particleSystem);
+
+    // Lighting (White Studio Setup)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    keyLight.position.set(5, 8, 5);
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0xebf4ff, 1.2);
+    fillLight.position.set(-6, -4, -3);
+    scene.add(fillLight);
+
+    // Dynamic Cursor-Tracking Point Light
+    const cursorLight = new THREE.PointLight(0xffffff, 2.5, 12);
+    cursorLight.position.set(0, 0, 4);
+    scene.add(cursorLight);
+
+    // Mouse & Inertia Tracking
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let isDragging = false;
+    let previousPointerX = 0;
+    let previousPointerY = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      // Update Cursor Light Position
+      cursorLight.position.x = mouseX * 4;
+      cursorLight.position.y = mouseY * 3;
+
+      if (!isDragging) {
+        targetRotationY = mouseX * 0.8;
+        targetRotationX = -mouseY * 0.8;
       }
     });
 
-    // Close mobile menu on link click
-    mobileMenu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.add('hidden');
-        const icon = mobileMenuBtn.querySelector('[data-lucide]');
-        if (icon) {
-          icon.setAttribute('data-lucide', 'menu');
-          if (window.lucide) lucide.createIcons();
+    // Drag Interaction on Canvas
+    canvasElement.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      previousPointerX = e.clientX;
+      previousPointerY = e.clientY;
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - previousPointerX;
+      const deltaY = e.clientY - previousPointerY;
+
+      mainGroup.rotation.y += deltaX * 0.008;
+      mainGroup.rotation.x += deltaY * 0.008;
+
+      previousPointerX = e.clientX;
+      previousPointerY = e.clientY;
+    });
+
+    window.addEventListener('pointerup', () => {
+      isDragging = false;
+    });
+
+    // Material Switcher Buttons
+    const materialBtns = document.querySelectorAll('.mode-switch-btn');
+    materialBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-mode');
+        if (materials[mode]) {
+          knotMesh.material = materials[mode];
+
+          materialBtns.forEach(b => {
+            b.classList.remove('bg-black', 'text-white', 'shadow-md');
+            b.classList.add('bg-white/80', 'text-zinc-700');
+          });
+          btn.classList.add('bg-black', 'text-white', 'shadow-md');
+          btn.classList.remove('bg-white/80', 'text-zinc-700');
+          showToast('3D Shader Applied', `Switched viewport rendering to ${btn.textContent.trim()}.`);
         }
       });
     });
+
+    // Render Animation Loop
+    let clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      // Smooth Inertia Damping
+      if (!isDragging) {
+        mainGroup.rotation.y += (targetRotationY - mainGroup.rotation.y) * 0.05;
+        mainGroup.rotation.x += (targetRotationX - mainGroup.rotation.x) * 0.05;
+      }
+
+      // Continuous Idle Float & Rotation
+      knotMesh.rotation.y = elapsedTime * 0.25;
+      knotMesh.rotation.z = elapsedTime * 0.15;
+
+      orbitalRing.rotation.z = -elapsedTime * 0.3;
+      orbitalRing2.rotation.z = elapsedTime * 0.2;
+
+      particleSystem.rotation.y = elapsedTime * 0.04;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Window Resize Handler
+    window.addEventListener('resize', () => {
+      const newWidth = container.clientWidth || window.innerWidth;
+      const newHeight = container.clientHeight || 650;
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(newWidth, newHeight);
+    });
   }
 
-  // 3. Interactive Showcase Tabs
-  const showcaseTabs = document.querySelectorAll('.showcase-tab');
-  const showcasePanels = document.querySelectorAll('.showcase-panel');
+  // =========================================================================
+  // 2. 3D CARD TILT ON MOUSE HOVER
+  // =========================================================================
+  const tiltCards = document.querySelectorAll('.tilt-card');
+  tiltCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-  showcaseTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const target = tab.getAttribute('data-target');
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
 
-      // Update Tab Buttons
-      showcaseTabs.forEach(t => {
-        t.classList.remove('bg-purple-600/20', 'border-purple-500/50', 'text-white', 'text-purple-300');
-        t.classList.add('text-slate-400', 'border-transparent');
-      });
-      tab.classList.remove('text-slate-400', 'border-transparent');
-      tab.classList.add('bg-purple-600/20', 'border-purple-500/50', 'text-purple-300');
+      const rotateX = ((y - centerY) / centerY) * -10;
+      const rotateY = ((x - centerX) / centerX) * 10;
 
-      // Switch Panels
-      showcasePanels.forEach(panel => {
-        if (panel.id === target) {
-          panel.classList.remove('hidden');
-          panel.classList.add('flex');
-        } else {
-          panel.classList.add('hidden');
-          panel.classList.remove('flex');
-        }
-      });
-      if (window.lucide) lucide.createIcons();
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
     });
   });
 
-  // 4. Code Language Switcher in Bento Grid
-  const codeBtns = document.querySelectorAll('.code-lang-btn');
-  const codeSnippet = document.getElementById('code-snippet-text');
-  
-  const codeSnippets = {
-    ts: `import { Aura } from "@aura/sdk";
+  // =========================================================================
+  // 3. CODE SNIPPET TABS & CLIPBOARD COPY
+  // =========================================================================
+  const codeTabs = document.querySelectorAll('.code-tab-btn');
+  const codeDisplay = document.getElementById('code-display-block');
 
-// Initialize autonomous agent workflow
-const agent = new Aura.Agent({
-  model: "aura-reasoning-v3",
-  memory: "adaptive-vector",
-  telemetry: true,
+  const snippets = {
+    ts: `import { Lumen3D } from "@lumen/spatial";
+
+// Initialize hardware-accelerated 3D neural kernel
+const kernel = new Lumen3D.Kernel({
+  accelerator: "webgpu",
+  renderQuality: "ultra-precision",
+  antiAlias: true,
 });
 
-const result = await agent.orchestrate({
-  task: "Optimize distributed PostgreSQL latency",
-  autoDeploy: true,
-  safeguards: "strict",
+// Stream real-time spatial predictions
+const session = await kernel.spawnSimulation({
+  geometry: "parametric-manifold",
+  concurrency: 64,
+  precision: "fp16",
 });
 
-console.log("Optimized pipeline latency:", result.metrics.latencyMs);`,
-    python: `from aura_sdk import AuraClient
+console.log("Kernel FPS:", session.metrics.fps); // 120 FPS`,
+    python: `from lumen_spatial import SpatialKernel
 
-client = AuraClient(api_key="aur_live_99482")
+kernel = SpatialKernel(api_key="lum_live_94821")
 
-# Spawn an autonomous operations worker
-workflow = client.pipelines.create(
-    goal="Analyze telemetry & heal anomalous pods",
-    concurrency=16,
-    approval_policy="auto-scale",
+# Synthesize real-time 3D coordinate meshes
+mesh = kernel.geometry.synthesize(
+    prompt="Crystalline parametric torus with high-specular glass",
+    subdivisions=64,
+    export_format="gltf-binary"
 )
 
-summary = workflow.execute_sync()
-print(f"Autonomous health score: {summary.health_percent}%")`,
-    curl: `curl -X POST https://api.aura.dev/v1/orchestrations \\
-  -H "Authorization: Bearer aur_live_99482" \\
+mesh.deploy_edge(region="auto")
+print(f"Mesh rendered in {mesh.latency_ms}ms")`,
+    curl: `curl -X POST https://api.lumen3d.io/v1/spatial/synthesize \\
+  -H "Authorization: Bearer lum_live_94821" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "aura-3.2-flash",
-    "prompt": "Synthesize microservices architecture diagram",
-    "streaming": true
+    "engine": "lumen-3.0-spatial",
+    "topology": "geodesic-icosahedron",
+    "material": "liquid-titanium",
+    "samples": 128
   }'`
   };
 
-  codeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const lang = btn.getAttribute('data-lang');
-      codeBtns.forEach(b => b.classList.remove('text-purple-400', 'border-b-2', 'border-purple-500'));
-      btn.classList.add('text-purple-400', 'border-b-2', 'border-purple-500');
+  codeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const lang = tab.getAttribute('data-lang');
+      codeTabs.forEach(t => {
+        t.classList.remove('bg-black', 'text-white');
+        t.classList.add('text-zinc-600', 'hover:text-black');
+      });
+      tab.classList.add('bg-black', 'text-white');
+      tab.classList.remove('text-zinc-600', 'hover:text-black');
 
-      if (codeSnippet && codeSnippets[lang]) {
-        codeSnippet.textContent = codeSnippets[lang];
+      if (codeDisplay && snippets[lang]) {
+        codeDisplay.textContent = snippets[lang];
       }
     });
   });
 
-  // Copy Code Button
   const copyCodeBtn = document.getElementById('copy-code-btn');
-  if (copyCodeBtn && codeSnippet) {
+  if (copyCodeBtn && codeDisplay) {
     copyCodeBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(codeSnippet.textContent).then(() => {
-        const originalText = copyCodeBtn.innerHTML;
-        copyCodeBtn.innerHTML = `<i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i> <span class="text-xs text-emerald-400">Copied!</span>`;
+      navigator.clipboard.writeText(codeDisplay.textContent).then(() => {
+        const orig = copyCodeBtn.innerHTML;
+        copyCodeBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 inline"></i> <span class="text-xs text-emerald-600">Copied!</span>`;
         if (window.lucide) lucide.createIcons();
-        showToast('Code Copied', 'SDK snippet copied to your clipboard!');
+        showToast('Copied', 'Spatial code snippet copied to your clipboard!');
         setTimeout(() => {
-          copyCodeBtn.innerHTML = originalText;
+          copyCodeBtn.innerHTML = orig;
           if (window.lucide) lucide.createIcons();
         }, 2200);
       });
     });
   }
 
-  // 5. Interactive ROI / Savings Calculator
-  const teamSizeSlider = document.getElementById('slider-team-size');
-  const hourlyRateSlider = document.getElementById('slider-hourly-rate');
-  const teamSizeVal = document.getElementById('val-team-size');
-  const hourlyRateVal = document.getElementById('val-hourly-rate');
+  // =========================================================================
+  // 4. INTERACTIVE VALUE / COMPUTE CALCULATOR
+  // =========================================================================
+  const sliderScale = document.getElementById('calc-slider-scale');
+  const sliderThroughput = document.getElementById('calc-slider-throughput');
+  const valScale = document.getElementById('calc-val-scale');
+  const valThroughput = document.getElementById('calc-val-throughput');
 
-  const metricHoursSaved = document.getElementById('calc-hours-saved');
-  const metricDollarSaved = document.getElementById('calc-dollar-saved');
-  const metricRoiMultiplier = document.getElementById('calc-roi-multiplier');
+  const outFps = document.getElementById('calc-out-fps');
+  const outHours = document.getElementById('calc-out-hours');
+  const outSaved = document.getElementById('calc-out-saved');
 
-  function calculateROI() {
-    if (!teamSizeSlider || !hourlyRateSlider) return;
+  function updateCalculator() {
+    if (!sliderScale || !sliderThroughput) return;
 
-    const teamSize = parseInt(teamSizeSlider.value, 10);
-    const hourlyRate = parseInt(hourlyRateSlider.value, 10);
+    const scale = parseInt(sliderScale.value, 10);
+    const throughput = parseInt(sliderThroughput.value, 10);
 
-    if (teamSizeVal) teamSizeVal.textContent = teamSize;
-    if (hourlyRateVal) hourlyRateVal.textContent = `$${hourlyRate}`;
+    if (valScale) valScale.textContent = `${scale} Devs`;
+    if (valThroughput) valThroughput.textContent = `${throughput}k Meshes`;
 
-    // Calculation formulas
-    // Aura saves ~7.5 hours per engineer each week on manual DevOps & plumbing
-    const weeklyHoursSaved = teamSize * 7.5;
-    const monthlyHoursSaved = weeklyHoursSaved * 4.33;
-    const annualHoursSaved = weeklyHoursSaved * 50; // 50 work weeks
-    const annualGrossSavings = annualHoursSaved * hourlyRate;
+    const hoursSaved = Math.round(scale * 18.5);
+    const annualSaved = Math.round(scale * 24000 + throughput * 80);
+    const fps = Math.min(120, Math.round(60 + (scale * 0.4)));
 
-    // Estimated annual subscription for team
-    const estimatedAuraCost = (teamSize * 29) * 12;
-    const netAnnualSavings = Math.max(0, annualGrossSavings - estimatedAuraCost);
-    const roiMultiplier = Math.round((annualGrossSavings / Math.max(estimatedAuraCost, 1)));
-
-    if (metricHoursSaved) {
-      metricHoursSaved.textContent = `${Math.round(monthlyHoursSaved).toLocaleString()} hrs`;
-    }
-    if (metricDollarSaved) {
-      metricDollarSaved.textContent = `$${Math.round(netAnnualSavings).toLocaleString()}`;
-    }
-    if (metricRoiMultiplier) {
-      metricRoiMultiplier.textContent = `${Math.min(roiMultiplier, 48)}x`;
-    }
+    if (outFps) outFps.textContent = `${fps} FPS`;
+    if (outHours) outHours.textContent = `${hoursSaved.toLocaleString()} hrs/mo`;
+    if (outSaved) outSaved.textContent = `$${annualSaved.toLocaleString()}`;
   }
 
-  if (teamSizeSlider && hourlyRateSlider) {
-    teamSizeSlider.addEventListener('input', calculateROI);
-    hourlyRateSlider.addEventListener('input', calculateROI);
-    calculateROI();
+  if (sliderScale && sliderThroughput) {
+    sliderScale.addEventListener('input', updateCalculator);
+    sliderThroughput.addEventListener('input', updateCalculator);
+    updateCalculator();
   }
 
-  // 6. Interactive Pricing Switcher (Monthly vs Annual)
+  // =========================================================================
+  // 5. PRICING MONTHLY / ANNUAL SWITCHER
+  // =========================================================================
   const billingToggle = document.getElementById('billing-toggle');
   const pricePro = document.getElementById('price-pro');
-  const priceScale = document.getElementById('price-scale');
-  const billingCycleLabels = document.querySelectorAll('.billing-cycle-label');
+  const priceEnterprise = document.getElementById('price-enterprise');
 
   if (billingToggle) {
     billingToggle.addEventListener('change', () => {
       const isAnnual = billingToggle.checked;
-
-      billingCycleLabels.forEach(label => {
-        label.textContent = isAnnual ? '/month, billed annually' : '/month, billed monthly';
-      });
-
-      if (pricePro) {
-        animateValue(pricePro, isAnnual ? 39 : 29, isAnnual ? 29 : 39, 300);
-      }
-      if (priceScale) {
-        animateValue(priceScale, isAnnual ? 129 : 99, isAnnual ? 99 : 129, 300);
-      }
+      if (pricePro) pricePro.textContent = isAnnual ? '$39' : '$49';
+      if (priceEnterprise) priceEnterprise.textContent = isAnnual ? '$149' : '$189';
     });
   }
 
-  function animateValue(elem, start, end, duration) {
-    let startTimestamp = null;
-    const step = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      const current = Math.floor(progress * (end - start) + start);
-      elem.textContent = `$${current}`;
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      }
-    };
-    window.requestAnimationFrame(step);
-  }
-
-  // 7. Interactive Testimonials Filter
-  const filterBtns = document.querySelectorAll('.testimonial-filter-btn');
-  const testimonialCards = document.querySelectorAll('.testimonial-card');
-
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const category = btn.getAttribute('data-category');
-
-      filterBtns.forEach(b => {
-        b.classList.remove('bg-purple-600', 'text-white', 'shadow-lg', 'shadow-purple-600/30');
-        b.classList.add('bg-white/5', 'text-slate-400');
-      });
-      btn.classList.add('bg-purple-600', 'text-white', 'shadow-lg', 'shadow-purple-600/30');
-      btn.classList.remove('bg-white/5', 'text-slate-400');
-
-      testimonialCards.forEach(card => {
-        const cardCat = card.getAttribute('data-category');
-        if (category === 'all' || cardCat === category) {
-          card.classList.remove('hidden');
-          card.classList.add('block');
-        } else {
-          card.classList.add('hidden');
-          card.classList.remove('block');
-        }
-      });
-    });
-  });
-
-  // 8. FAQ Accordion
+  // =========================================================================
+  // 6. FAQ ACCORDION
+  // =========================================================================
   const faqItems = document.querySelectorAll('.faq-item');
   faqItems.forEach(item => {
     const trigger = item.querySelector('.faq-trigger');
@@ -292,15 +406,13 @@ print(f"Autonomous health score: {summary.health_percent}%")`,
       trigger.addEventListener('click', () => {
         const isOpen = !content.classList.contains('hidden');
 
-        // Close all items
-        faqItems.forEach(otherItem => {
-          const otherContent = otherItem.querySelector('.faq-content');
-          const otherChevron = otherItem.querySelector('.faq-chevron');
+        faqItems.forEach(other => {
+          const otherContent = other.querySelector('.faq-content');
+          const otherChevron = other.querySelector('.faq-chevron');
           if (otherContent) otherContent.classList.add('hidden');
           if (otherChevron) otherChevron.classList.remove('rotate-180');
         });
 
-        // Toggle current
         if (!isOpen) {
           content.classList.remove('hidden');
           if (chevron) chevron.classList.add('rotate-180');
@@ -309,29 +421,12 @@ print(f"Autonomous health score: {summary.health_percent}%")`,
     }
   });
 
-  // 9. Early Access Newsletter Subscription
-  const newsletterForm = document.getElementById('newsletter-form');
-  const newsletterEmail = document.getElementById('newsletter-email');
-
-  if (newsletterForm && newsletterEmail) {
-    newsletterForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = newsletterEmail.value.trim();
-
-      if (!email || !email.includes('@')) {
-        showToast('Invalid Email', 'Please enter a valid work email address.', 'error');
-        return;
-      }
-
-      newsletterEmail.value = '';
-      showToast('Welcome to Aura Beta! 🎉', `We reserved access for ${email}. Check your inbox soon!`, 'success');
-    });
-  }
-
-  // 10. Demo Modal Handler
+  // =========================================================================
+  // 7. DEMO MODAL
+  // =========================================================================
   const modal = document.getElementById('demo-modal');
-  const modalTriggers = document.querySelectorAll('.open-demo-modal');
-  const modalCloseBtn = document.getElementById('close-demo-modal');
+  const openModalBtns = document.querySelectorAll('.open-demo-modal');
+  const closeModalBtn = document.getElementById('close-demo-modal');
   const demoForm = document.getElementById('demo-form');
 
   function openModal() {
@@ -351,8 +446,8 @@ print(f"Autonomous health score: {summary.health_percent}%")`,
     }
   }
 
-  modalTriggers.forEach(btn => btn.addEventListener('click', openModal));
-  if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+  openModalBtns.forEach(btn => btn.addEventListener('click', openModal));
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
 
   if (modal) {
     modal.addEventListener('click', (e) => {
@@ -368,71 +463,56 @@ print(f"Autonomous health score: {summary.health_percent}%")`,
   if (demoForm) {
     demoForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const submitBtn = demoForm.querySelector('button[type="submit"]');
-      const originalHtml = submitBtn.innerHTML;
-
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-auto"></div>`;
+      const btn = demoForm.querySelector('button[type="submit"]');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-auto"></div>`;
 
       setTimeout(() => {
         closeModal();
         demoForm.reset();
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalHtml;
-        showToast('Demo Reserved! 🚀', 'Our product engineering team will contact you within 2 business hours.');
-      }, 1000);
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        showToast('Session Reserved', 'Our graphics engineering team will contact you shortly.');
+      }, 900);
     });
   }
 
-  // 11. Toast Notification Utility
-  function showToast(title, message, type = 'info') {
-    const toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) return;
+  // =========================================================================
+  // 8. TOAST NOTIFICATION UTILITY
+  // =========================================================================
+  function showToast(title, message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
 
     const toast = document.createElement('div');
-    toast.className = `glass-card p-4 rounded-xl border flex items-start gap-3 shadow-2xl transition-all duration-300 transform translate-y-3 opacity-0 w-80 max-w-[90vw] ${
-      type === 'error' ? 'border-rose-500/40 bg-rose-950/80' : 'border-purple-500/40 bg-slate-900/90'
-    }`;
-
-    const iconName = type === 'error' ? 'alert-triangle' : 'sparkles';
-    const iconColor = type === 'error' ? 'text-rose-400' : 'text-purple-400';
+    toast.className = `glass-card-white p-4 rounded-xl border border-black/10 flex items-start gap-3 shadow-xl transition-all duration-300 transform translate-y-3 opacity-0 w-80 max-w-[90vw] bg-white`;
 
     toast.innerHTML = `
-      <div class="mt-0.5 ${iconColor}">
-        <i data-lucide="${iconName}" class="w-5 h-5"></i>
+      <div class="mt-0.5 text-black">
+        <i data-lucide="check-circle" class="w-4 h-4"></i>
       </div>
       <div class="flex-1">
-        <h4 class="text-sm font-semibold text-white">${title}</h4>
-        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">${message}</p>
+        <h4 class="text-xs font-semibold text-zinc-900">${title}</h4>
+        <p class="text-xs text-zinc-500 mt-0.5 leading-relaxed">${message}</p>
       </div>
-      <button class="text-slate-400 hover:text-white transition-colors" onclick="this.parentElement.remove()">
-        <i data-lucide="x" class="w-4 h-4"></i>
+      <button class="text-zinc-400 hover:text-black transition-colors" onclick="this.parentElement.remove()">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
       </button>
     `;
 
-    toastContainer.appendChild(toast);
+    container.appendChild(toast);
     if (window.lucide) lucide.createIcons();
 
-    // Trigger enter animation
     requestAnimationFrame(() => {
       toast.classList.remove('translate-y-3', 'opacity-0');
       toast.classList.add('translate-y-0', 'opacity-100');
     });
 
-    // Auto remove after 4 seconds
     setTimeout(() => {
       toast.classList.remove('translate-y-0', 'opacity-100');
       toast.classList.add('translate-y-3', 'opacity-0');
       setTimeout(() => toast.remove(), 300);
-    }, 4000);
-  }
-
-  // Real-time telemetry simulation in Dashboard Panel
-  const latencyBadge = document.getElementById('live-latency-ping');
-  if (latencyBadge) {
-    setInterval(() => {
-      const ping = Math.floor(Math.random() * 8) + 12; // 12-19ms
-      latencyBadge.textContent = `${ping}ms`;
-    }, 3000);
+    }, 3800);
   }
 });
